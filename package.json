@@ -1,0 +1,25 @@
+{
+  "name": "naive-translate-cli",
+  "version": "1.0.0",
+  "description": "Naive translate CLI to test async generator functions",
+  "main": "index.js",
+  "scripts": {
+    "cli": "npx babel-node index"
+  },
+  "keywords": [
+    "async",
+    "generator",
+    "cli",
+    "translate"
+  ],
+  "author": "Andres Garcia",
+  "license": "ISC",
+  "dependencies": {
+    "google-translate-api": "^2.3.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-async-generator-functions": "^6.24.1",
+    "babel-preset-env": "^1.6.1"
+  }
+}
