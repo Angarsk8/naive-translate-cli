@@ -8,9 +8,7 @@ const rl = createInterface({
 })
 
 const question = query => new Promise(resolve => {
-  rl.question(query, answer => {
-    resolve(answer)
-  })
+  rl.question(query, resolve)
 })
 
 const checkInternet = () => new Promise((resolve, reject) => {
@@ -25,8 +23,8 @@ const checkInternet = () => new Promise((resolve, reject) => {
 
 async function* CLIGenerator(promptMessage = '') {
   while (true) {
-    let rawInput = await question(`${promptMessage}❯ `)
-    let input = rawInput.trim().toLowerCase()
+    const rawInput = await question(`${promptMessage}❯ `)
+    const input = rawInput.trim().toLowerCase()
 
     if (input === ':exit') {
       const answer = await question('Are you sure you want to exit? (yes|no): ')
