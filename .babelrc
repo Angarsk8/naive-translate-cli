@@ -3,6 +3,8 @@
     "env"
   ],
   "plugins": [
-    "transform-async-generator-functions"
+    "transform-async-generator-functions",
+    "syntax-dynamic-import",
+    "dynamic-import-node"
   ]
 }

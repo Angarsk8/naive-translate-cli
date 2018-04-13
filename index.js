@@ -1,15 +1,12 @@
-const { createInterface } = require('readline')
-const { lookup } = require('dns')
-const translate = require('google-translate-api')
+import { createInterface } from 'readline'
+import { lookup } from 'dns'
 
 const rl = createInterface({
   input: process.stdin,
   output: process.stdout
 })
 
-const question = query => new Promise(resolve => {
-  rl.question(query, resolve)
-})
+const question = query => new Promise(resolve => rl.question(query, resolve))
 
 const checkInternet = () => new Promise((resolve, reject) => {
   lookup('google.com', error => {
@@ -43,6 +40,8 @@ async function main() {
 
   try {
     await checkInternet()
+
+    const translate = await import('google-translate-api')
 
     const from = await question('Select origin language (eg. \'en\' or \'english\'): ')
     const to   = await question('Select target language (eg. \'es\' or \'spanish\'): ')
