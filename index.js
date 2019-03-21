@@ -1,64 +1,89 @@
-import { createInterface } from 'readline'
-import { lookup } from 'dns'
+import { createInterface } from 'readline';
+import { lookup } from 'dns';
 
 const rl = createInterface({
   input: process.stdin,
   output: process.stdout
-})
+});
 
-const question = query => new Promise(resolve => rl.question(query, resolve))
+const question = query => new Promise(resolve => rl.question(query, resolve));
 
 const checkInternet = () => new Promise((resolve, reject) => {
-  lookup('google.com', error => {
+  lookup('google.com', (error) => {
     if (error && error.code === 'ENOTFOUND') {
-      error.message = `Internet not available (${error.code})`
-      return reject(error)
+      error.message = `Internet not available (${error.code})`;
+      return reject(error);
     }
-    resolve()
-  })
-})
+    resolve();
+  });
+});
 
-async function* CLIGenerator(promptMessage = '') {
+const createCLIGenerator = (state) => async function* (promptMessage = '') {
+  let nextState = { ...state };
   while (true) {
-    const rawInput = await question(`${promptMessage}❯ `)
-    const input = rawInput.trim().toLowerCase()
+    const rawInput = await question(`${promptMessage}❯ `);
+    const input = rawInput.trim().toLowerCase();
 
     if (input === ':exit') {
-      const answer = await question('Are you sure you want to exit? (yes|no): ')
+      const answer = await question('Are you sure you want to exit? (yes|no): ');
       if (answer.match(/^y(es)?$/i)) {
-        break
+        break;
       }
-      continue
+      continue;
     }
 
-    yield input
+    if (input === ':update:origin') {
+      nextState.from = await question(`Select origin language (eg. 'en' or 'english'): `);
+    }
+
+    if (input === ':update:target') {
+      nextState.to = await question(`Select target language (eg. 'es' or 'spanish'): `);
+    }
+
+    nextState.input = input;
+
+    yield nextState;
   }
 }
 
 async function main() {
-  console.log('Welcome to the translate CLI!\n')
+  console.log('Welcome to the translate CLI!\n');
 
   try {
-    await checkInternet()
+    await checkInternet();
 
-    const translate = await import('google-translate-api')
+    const translate = await import('google-translate-api');
 
-    const from = await question('Select origin language (eg. \'en\' or \'english\'): ')
-    const to   = await question('Select target language (eg. \'es\' or \'spanish\'): ')
+    let state = {
+      input: null,
+      from: await question(`Select origin language (eg. 'en' or 'english'): `),
+      to:   await question(`Select target language (eg. 'es' or 'spanish'): `)
+    };
 
-    console.log('\n[type \':exit\' to exit the CLI]\n')
+    console.log([
+      '',
+      '[type :exit to exit the CLI]',
+      '[type :update:origin to change origin language]',
+      '[type :update:target to change target language]',
+      ''
+    ].join('\n'));
 
-    for await (let input of CLIGenerator()) {
-      let { text } = await translate(input, { from, to })
-      console.log(text)
+    const CLIGenerator = createCLIGenerator({ ...state });
+
+    for await (const nextState of CLIGenerator()) {
+      if (nextState.from === state.from && nextState.to === state.to) {
+        let { text } = await translate(nextState.input, { ...nextState });
+        console.log(text);
+      }
+      state = { ...nextState };
     }
 
-    console.log('\nChao! 👋')
+    console.log('\nChao! 👋');
   } catch (error) {
-    console.error(`\nError: ${error.message}`)
+    console.error(`\nError: ${error.message}`);
   } finally {
-    rl.close()
+    rl.close();
   }
 }
 
-main()
+main();

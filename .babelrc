@@ -5,6 +5,7 @@
   "plugins": [
     "transform-async-generator-functions",
     "syntax-dynamic-import",
-    "dynamic-import-node"
+    "dynamic-import-node",
+    "transform-object-rest-spread"
   ]
 }
